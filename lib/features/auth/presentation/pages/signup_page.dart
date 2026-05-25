@@ -97,11 +97,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: context.softShadow,
             ),
-            child: Icon(
-              Icons.arrow_back,
-              color: context.textPrimary,
-              size: 20,
-            ),
+            child: Icon(Icons.arrow_back, color: context.textPrimary, size: 20),
           ),
           onPressed: _navigateToLogin,
         ),
