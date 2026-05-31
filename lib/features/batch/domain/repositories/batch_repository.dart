@@ -10,4 +10,16 @@ abstract interface class IBatchRepository {
   Future<Either<Failure, bool>> deleteBatch( String batchId);
 }
  
- 
+ //Retrurn type: j pani huna sakyo
+ //Parameter j pani huna sakyo
+
+ //int add(int a, int b)
+
+ //double add (double b)
+
+
+//Generic class
+
+//T add(y)
+
+//SuccessType add (Params)

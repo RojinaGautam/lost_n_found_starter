@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:lost_n_found/features/batch/domain/entities/batch_entity.dart';
+import 'package:lost_n_found/features/batch/presentation/state/batch_state.dart';
+import 'package:lost_n_found/features/batch/presentation/view_model/batch_viewmodel.dart';
 import '../../../../app/routes/app_routes.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/theme_extensions.dart';
 import '../../../../core/widgets/gradient_button.dart';
 import '../../../../core/utils/snackbar_utils.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
-
+ 
 class SignupPage extends ConsumerStatefulWidget {
   const SignupPage({super.key});
-
+ 
   @override
   ConsumerState<SignupPage> createState() => _SignupPageState();
 }
-
+ 
 class _SignupPageState extends ConsumerState<SignupPage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
@@ -21,14 +24,14 @@ class _SignupPageState extends ConsumerState<SignupPage> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-
+ 
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   bool _agreedToTerms = false;
   String? _selectedBatch;
   String _selectedCountryCode = '+977'; // Default Nepal
-
+ 
   // Country codes
   final List<Map<String, String>> _countryCodes = [
     {'code': '+977', 'name': 'Nepal', 'flag': '🇳🇵'},
@@ -37,15 +40,9 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     {'code': '+44', 'name': 'UK', 'flag': '🇬🇧'},
     {'code': '+86', 'name': 'China', 'flag': '🇨🇳'},
   ];
-
-  // Mock batch data - will come from GET /api/v1/batches
-  final List<Map<String, String>> _batches = [
-    {'id': '1', 'name': '35A'},
-    {'id': '2', 'name': '35B'},
-    {'id': '3', 'name': '36A'},
-    {'id': '4', 'name': '36B'},
-  ];
-
+ 
+   List<BatchEntity> _batches = [];
+ 
   @override
   void dispose() {
     _nameController.dispose();
@@ -55,7 +52,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     _confirmPasswordController.dispose();
     super.dispose();
   }
-
+ 
   Future<void> _handleSignup() async {
     if (!_agreedToTerms) {
       SnackbarUtils.showError(
@@ -64,14 +61,14 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       );
       return;
     }
-
+ 
     if (_formKey.currentState!.validate()) {
       setState(() {
         _isLoading = true;
       });
-
+ 
       await Future.delayed(const Duration(seconds: 2));
-
+ 
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -80,13 +77,26 @@ class _SignupPageState extends ConsumerState<SignupPage> {
       }
     }
   }
-
+ 
   void _navigateToLogin() {
     Navigator.of(context).pop();
   }
-
+ 
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(batchViewmodelProvider.notifier).getAllBAtches();
+    });
+  }
+ 
   @override
   Widget build(BuildContext context) {
+    final batchState = ref.watch(batchViewmodelProvider);
+    if (batchState.status == BatchStatus.loaded) {
+      _batches = batchState.batches;
+    }
+ 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -157,7 +167,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     ),
                   ),
                   const SizedBox(height: 32),
-
+ 
                   // Full Name Field
                   TextFormField(
                     controller: _nameController,
@@ -179,7 +189,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-
+ 
                   // Email Field
                   TextFormField(
                     controller: _emailController,
@@ -202,7 +212,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-
+ 
                   // Phone Number with Country Code
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -277,15 +287,18 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                   // Batch Selection
                   DropdownButtonFormField<String>(
                     initialValue: _selectedBatch,
-                    decoration: const InputDecoration(
+                    decoration:  InputDecoration(
                       labelText: 'Select Batch',
-                      hintText: 'Choose your batch',
+                      hintText: batchState.status == BatchStatus.loading
+                      ? 'Loading batches...'
+                      :'Choose your batch',
+ 
                       prefixIcon: Icon(Icons.school_rounded),
                     ),
                     items: _batches.map((batch) {
                       return DropdownMenuItem<String>(
-                        value: batch['id'],
-                        child: Text(batch['name']!),
+                        value: batch.batchId,
+                        child: Text(batch.batchName),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -301,7 +314,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-
+ 
                   // Password Field
                   TextFormField(
                     controller: _passwordController,
@@ -334,7 +347,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 16),
-
+ 
                   // Confirm Password Field
                   TextFormField(
                     controller: _confirmPasswordController,
@@ -367,7 +380,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     },
                   ),
                   const SizedBox(height: 20),
-
+ 
                   // Terms & Conditions
                   Row(
                     children: [
@@ -425,7 +438,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     ],
                   ),
                   const SizedBox(height: 32),
-
+ 
                   // Sign Up Button
                   GradientButton(
                     text: 'Create Account',
@@ -433,7 +446,7 @@ class _SignupPageState extends ConsumerState<SignupPage> {
                     isLoading: _isLoading,
                   ),
                   const SizedBox(height: 32),
-
+ 
                   // Login Link
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -468,3 +481,5 @@ class _SignupPageState extends ConsumerState<SignupPage> {
     );
   }
 }
+ 
+ 
