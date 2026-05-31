@@ -1,15 +1,15 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
- 
+
 part of 'batch_hive_model.dart';
- 
+
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
- 
+
 class BatchHiveModelAdapter extends TypeAdapter<BatchHiveModel> {
   @override
   final int typeId = 0;
- 
+
   @override
   BatchHiveModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
@@ -22,7 +22,7 @@ class BatchHiveModelAdapter extends TypeAdapter<BatchHiveModel> {
       status: fields[2] as String?,
     );
   }
- 
+
   @override
   void write(BinaryWriter writer, BatchHiveModel obj) {
     writer
@@ -34,10 +34,10 @@ class BatchHiveModelAdapter extends TypeAdapter<BatchHiveModel> {
       ..writeByte(2)
       ..write(obj.status);
   }
- 
+
   @override
   int get hashCode => typeId.hashCode;
- 
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -45,5 +45,3 @@ class BatchHiveModelAdapter extends TypeAdapter<BatchHiveModel> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
- 
- 
